@@ -240,14 +240,14 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 		Log.info( "handleNameEnumerator got a callback!");
 
 		synchronized (namesLock) {
-			names = new ArrayList<ContentName>();
+			receivingNames = new ArrayList<ContentName>();
 			for (ContentName name : names){
-				names.add(name);				
+				receivingNames.add(name);				
 			}
 			namesLock.notify();
 			Log.info("here are the returned names: ");
-			Log.info("Name Count: {0}", names.size());
-			for (ContentName name: names){
+			Log.info("Name Count: {0}", receivingNames.size());
+			for (ContentName name: receivingNames){
 				Log.info(name.toString()+" ("+prefix.toString()+name.toString()+")");
 			}
 		}
