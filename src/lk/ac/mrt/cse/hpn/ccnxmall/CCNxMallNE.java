@@ -2,6 +2,7 @@ package lk.ac.mrt.cse.hpn.ccnxmall;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 
 
@@ -11,6 +12,8 @@ import org.ccnx.ccn.impl.support.Log;
 import org.ccnx.ccn.profiles.nameenum.BasicNameEnumeratorListener;
 import org.ccnx.ccn.profiles.nameenum.CCNNameEnumerator;
 import org.ccnx.ccn.protocol.ContentName;
+import org.ccnx.ccn.protocol.MalformedContentNameStringException;
+import org.ccnx.ccn.protocol.Signature;
 
 public class CCNxMallNE implements BasicNameEnumeratorListener{
 
@@ -40,7 +43,6 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 	protected Object namesLock = new Object();
 	
 	
-	
 	public CCNxMallNE(){
 		
 		receivingNames = null;
@@ -49,6 +51,7 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 	
 	public boolean setupNetwork(){
 		Log.info("Starting setupNetwork");
+				
 		try {
 			putHandle = CCNHandle.open();
 			getHandle = CCNHandle.open();
@@ -66,7 +69,20 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 		return true;
 	}
 	
-	
+	public boolean shutdownNetwork(){
+		Log.info("Starting shutdownNetwork");
+		
+		if (null != putHandle)
+			putHandle.close();
+		if (null != getHandle)
+			getHandle.close();
+		
+		//TODO: Never Used a key.!
+		//KeyManager.closeDefaultKeyManager();
+		
+		Log.info("Completed shutdownNetwork");
+		return true;
+	}
 	
 	
 	/**
@@ -92,7 +108,7 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 			waitCallbackFromRegisteredPrefix();
 			
 		} catch (IOException e) {
-			
+			Log.severe("Couldn't convert prefix properly");
 			list = null;
 			e.printStackTrace();
 		}
@@ -105,6 +121,14 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 			}
 			}
 		}
+		
+		try {
+			getne.cancelPrefix(ContentName.fromNative(nativePrefix));
+		} catch (MalformedContentNameStringException e) {
+			Log.severe("Couldn't convert prefix properly");
+			e.printStackTrace();
+		}
+		
 		Log.info("Completed getContentListFromNetwork");
 		return list;
 	}
@@ -121,13 +145,12 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 		for(ContentName name: names ){
 			putne.registerNameForResponses(name);				
 		}
-
 		try{
 			//Wait till even the last name is registered
 			while(!putne.containsRegisteredName(names.get(names.size()-1))){
 				Thread.sleep(10);
 			}
-
+			
 			//the names are registered...
 			Log.info("the names are now registered");
 		}
@@ -222,8 +245,8 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 				names.add(name);				
 			}
 			namesLock.notify();
-			Log.info(Log.FAC_TEST, "here are the returned names: ");
-
+			Log.info("here are the returned names: ");
+			Log.info("Name Count: {0}", names.size());
 			for (ContentName name: names){
 				Log.info(name.toString()+" ("+prefix.toString()+name.toString()+")");
 			}

@@ -69,6 +69,12 @@ public class CCNxMall {
 		return true;
 	}
 	
+	public void finalize(){
+		
+		_networkHandler.shutdownNetwork();
+	
+	}
+	
 	public void syncContentStore(String prefix){
 		ArrayList<ContentName> names;
 		names = _networkHandler.getContentListFromNetwork(prefix);
@@ -97,6 +103,8 @@ public class CCNxMall {
 			e.printStackTrace();
 		}
 		mall.syncContentStore("ccnx:/mall");
+
+		mall.finalize();
 	}
 
 }
