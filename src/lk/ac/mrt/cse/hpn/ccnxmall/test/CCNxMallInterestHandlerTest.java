@@ -1,10 +1,11 @@
-package lk.ac.mrt.cse.hpn.ccnxmall;
+package lk.ac.mrt.cse.hpn.ccnxmall.test;
 
 import static org.junit.Assert.*;
 
 import java.io.IOException;
 
 import junit.framework.Assert;
+import lk.ac.mrt.cse.hpn.ccnxmall.CCNxMallInterestHandler;
 
 import org.ccnx.ccn.CCNHandle;
 import org.ccnx.ccn.config.ConfigurationException;

@@ -1,4 +1,4 @@
-package lk.ac.mrt.cse.hpn.ccnxmall;
+package lk.ac.mrt.cse.hpn.ccnxmall.test;
 
 import static org.junit.Assert.*;
 
@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import junit.framework.Assert;
+import lk.ac.mrt.cse.hpn.ccnxmall.CCNxMallNE;
 
 import org.ccnx.ccn.CCNHandle;
 import org.ccnx.ccn.config.ConfigurationException;

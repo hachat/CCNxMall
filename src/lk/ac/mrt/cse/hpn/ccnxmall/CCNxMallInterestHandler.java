@@ -28,7 +28,7 @@ public class CCNxMallInterestHandler implements CCNInterestHandler{
 	 */
 	protected CCNHandle _serviceHandle;
 	
-	CCNxMallInterestHandler(CCNHandle _networkServiceHandle,
+	public CCNxMallInterestHandler(CCNHandle _networkServiceHandle,
 			ContentName _domainPrefix,
 			String _contentFolder) {
 
