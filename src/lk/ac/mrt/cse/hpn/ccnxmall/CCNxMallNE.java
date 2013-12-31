@@ -123,15 +123,19 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 	 */
 	public void registerNames(ContentName namespace,ArrayList<ContentName> names) throws IOException{
 		Log.info("Starting registerNames");
-		
+		ContentName fullName = null;
 		_putne.registerNameSpace(namespace);
 		
 		for(ContentName name: names ){
-			_putne.registerNameForResponses(name);				
+			fullName = namespace.append(name);
+			Log.info("registering name {0}", fullName);
+			_putne.registerNameForResponses(fullName);	
 		}
+		Log.info("registered all names in server");
+		
 		try{
 			//Wait till even the last name is registered
-			while(!_putne.containsRegisteredName(names.get(names.size()-1))){
+			while(!_putne.containsRegisteredName(fullName)){
 				Thread.sleep(10);
 			}
 			

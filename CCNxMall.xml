@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project CCNxMall with libraries in sub-folder">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="/home/chathuranga/Programming/hpn/CCNxMall_debug/CCNxMall.jar">
+            <manifest>
+                <attribute name="Main-Class" value="lk.ac.mrt.cse.hpn.ccnxmall.CCNxMall"/>
+                <attribute name="Class-Path" value=". CCNxMall_lib/junit.jar CCNxMall_lib/org.hamcrest.core_1.1.0.v20090501071000.jar CCNxMall_lib/bcprov-jdk16-143.jar CCNxMall_lib/junit-4.3.1.jar CCNxMall_lib/kxml2-2.3.0.jar CCNxMall_lib/junit-4.3.1.jar"/>
+            </manifest>
+            <fileset dir="/home/chathuranga/Programming/hpn/mallworkspace/CCNxMall/bin"/>
+            <fileset dir="/home/chathuranga/Programming/hpn/ccnx-0.8.1/javasrc/bin"/>
+        </jar>
+        <delete dir="/home/chathuranga/Programming/hpn/CCNxMall_debug/CCNxMall_lib"/>
+        <mkdir dir="/home/chathuranga/Programming/hpn/CCNxMall_debug/CCNxMall_lib"/>
+        <copy file="/media/NewWorking/adt-bundle-linux-x86_64-20131030/eclipse/plugins/org.junit_4.10.0.v4_10_0_v20120426-0900/junit.jar" todir="/home/chathuranga/Programming/hpn/CCNxMall_debug/CCNxMall_lib"/>
+        <copy file="/media/NewWorking/adt-bundle-linux-x86_64-20131030/eclipse/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar" todir="/home/chathuranga/Programming/hpn/CCNxMall_debug/CCNxMall_lib"/>
+        <copy file="/home/chathuranga/Programming/hpn/ccnx-0.8.1/javasrc/lib/bcprov-jdk16-143.jar" todir="/home/chathuranga/Programming/hpn/CCNxMall_debug/CCNxMall_lib"/>
+        <copy file="/home/chathuranga/Programming/hpn/ccnx-0.8.1/javasrc/lib/junit-4.3.1.jar" todir="/home/chathuranga/Programming/hpn/CCNxMall_debug/CCNxMall_lib"/>
+        <copy file="/home/chathuranga/Programming/hpn/ccnx-0.8.1/javasrc/lib/kxml2-2.3.0.jar" todir="/home/chathuranga/Programming/hpn/CCNxMall_debug/CCNxMall_lib"/>
+        <copy file="/home/chathuranga/Programming/hpn/mallworkspace/CCNxMall/libs/junit-4.3.1.jar" todir="/home/chathuranga/Programming/hpn/CCNxMall_debug/CCNxMall_lib"/>
+    </target>
+</project>

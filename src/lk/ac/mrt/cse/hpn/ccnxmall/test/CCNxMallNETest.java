@@ -38,8 +38,8 @@ public class CCNxMallNETest {
 		}
 		
 		try {
-			_contentList.add(ContentName.fromNative("/testmall/1.txt"));
-			_contentList.add(ContentName.fromNative("/testmall/2.txt"));
+			_contentList.add(ContentName.fromNative("/1.txt"));
+			_contentList.add(ContentName.fromNative("/2.txt"));
 			
 			
 		} catch (MalformedContentNameStringException e) {

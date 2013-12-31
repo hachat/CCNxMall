@@ -11,11 +11,16 @@ import org.ccnx.ccn.protocol.MalformedContentNameStringException;
 
 public class CCNxMall {
 
+	
+	/**
+	 * Domain of the hosting content.
+	 */
+	ContentName _namespace;
+	
 	/**
 	 * Incoming CCNx request handler.
 	 */
 	protected CCNHandle _incomingHandle;
-	
 	
 	/**
 	 * Outgoing CCNx response handler.
@@ -56,16 +61,20 @@ public class CCNxMall {
 	 */
 	protected CCNxMallNE _networkHandler;
 	
+	/**
+	 * For graceful termination.
+	 */
+	private volatile static boolean keepOn = true; 
+	
 	public CCNxMall(){
-		_contentStore = new CCNxMallContentStore();
+		Runtime.getRuntime().addShutdownHook(new RunWhenShuttingDown()); 
+		
 		_networkHandler = new CCNxMallNE();
 	}
 	
 	public boolean initialize(String domain,String _rootFolder){
 		boolean result;
 		
-		
-		ContentName _namespace;
 		try {
 			
 			if (!domain.startsWith("/")){
@@ -95,6 +104,10 @@ public class CCNxMall {
 			e2.printStackTrace();
 		}
 		
+		//Create the content store. Which provides the list of available content
+		_contentStore = new CCNxMallContentStore(_rootFolder);
+		
+		
 		//Register Content Response Handler
 		_contentInterestResponder = new CCNxMallInterestHandler(_incomingHandle,_namespace, _rootFolder);
 		try {
@@ -112,7 +125,7 @@ public class CCNxMall {
 				Log.severe("Could not setup Network");
 				return false;
 			}		
-				_networkHandler.registerNames(_namespace,_contentStore.getContentList());
+			_networkHandler.registerNames(_namespace,_contentStore.getContentList());
 
 			
 		} catch (IOException e) {
@@ -149,43 +162,82 @@ public class CCNxMall {
 	
 	public void syncContentStore(String prefix){
 		ArrayList<ContentName> names;
+		
+		//Get available names from the network
 		names = _networkHandler.getContentListFromNetwork(prefix);
 		if(names != null){
 			for(ContentName name: names){
 				System.out.println("Need to get: " + prefix + name);
+				if(_contentStore.checkAvailability(name.toURIString())){
+				//Grab each content and save it
 				_contentCollector.getContentAndStore(prefix + name);
+				}
 			}
 		}
 		
-		
+		//Re-publish the content
+		//TODO Look at any versioning with this request.
+		try {
+			_networkHandler.registerNames(_namespace,_contentStore.getContentList());
+		} catch (IOException e) {
+			Log.severe("IOException while re-registering names");
+			e.printStackTrace();
+		}
+
 	}
 	
+	
+	private static void printUsage() {
+		// TODO Auto-generated method stub
+		System.out.println("Usage: CCNxMall <URI> <MessagesDirectory>");
+		System.out.println("       CCNxMall ccnx:/mall ~/mall_messages");
+		System.out.println(" mall_messages directory should consist of messages saved in .txt files");
+	}
+	
+ 
+	//~ Inner Classes ----------------------------------------------------------------------------- 
+
+	public class RunWhenShuttingDown extends Thread { 
+		public void run() { 
+			System.out.println("Shutting down..."); 
+			keepOn = false; 
+			try { 
+				Thread.sleep(2000); 
+			} 
+			catch (InterruptedException e) { 
+				e.printStackTrace(); 
+			}
+		}
+	}
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+		
+		
 		CCNxMall mall = new CCNxMall();
-		
 
-		mall.initialize("ccnx:/mall","../../../../mall_messages/");
-		
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(args.length < 2){
+			printUsage();
+			return;
 		}
-		mall.syncContentStore("ccnx:/mall");
-
+		
+		System.out.println("Namespace:" + args[0]);
+		System.out.println("Message Store:" + args[1]);
+		
+		mall.initialize(args[0],args[1]);
+		
+		while(keepOn){
 		try {
+			mall.syncContentStore(args[0]);
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			mall.shutdownNetwork();
+			return;
 		}
-		mall.shutdownNetwork();
+		}
+		
 	}
 
 }

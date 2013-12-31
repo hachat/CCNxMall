@@ -12,22 +12,50 @@ public class CCNxMallContentStore {
 	protected File _rootDirectory;
 	protected ArrayList<ContentName> _contentList;
 	
+	public CCNxMallContentStore(String rootDirectory){
+		
+		_rootDirectory = new File(rootDirectory);
+		
+	}
+	
 	public ArrayList<ContentName> getContentList(){
+		Log.info("Start getContentList");
 		
 		_contentList = new ArrayList<ContentName>();
 		
+		if (!_rootDirectory.exists() || !_rootDirectory.isDirectory()) {
+			Log.info("nothing to enumerate in content store");
+			return null;
+		}
+		
+		String[] listOfFiles = _rootDirectory.list();
 		try {
-			_contentList.add(ContentName.fromNative("/mall/1.txt"));
-			_contentList.add(ContentName.fromNative("/mall/2.txt"));
-			_contentList.add(ContentName.fromNative("/mall/3.txt"));
-			_contentList.add(ContentName.fromNative("/mall/4.txt"));
-			
+			for (String filename:listOfFiles){
+				Log.info("Got content: {0}",filename);
+				_contentList.add(ContentName.fromNative("/" + filename));
+			}
 		} catch (MalformedContentNameStringException e) {
 			Log.warning("Content names malformed.");
 			e.printStackTrace();
 			return null;
 		}
-	
+		
+		Log.info("Complete getContentList");
 		return _contentList;
+	}
+	
+	public boolean checkAvailability(String filename){
+		Log.info("Start checkAvailability {0}",filename);
+		
+		String[] listOfFiles = _rootDirectory.list();
+		
+		for(String file: listOfFiles){
+			if(file.equals(filename)){
+				Log.info("Complete checkAvailability");
+				return true;
+			}
+		}
+		Log.info("Complete checkAvailability");
+		return false;
 	}
 }
