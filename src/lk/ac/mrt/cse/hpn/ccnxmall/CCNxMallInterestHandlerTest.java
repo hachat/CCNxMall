@@ -19,16 +19,14 @@ public class CCNxMallInterestHandlerTest {
 	public void test() {
 		
 		
-		CCNHandle _incomingHandle = null;
-		CCNHandle _outgoingHandle = null;
+		CCNHandle _serverHandle = null;
 		
 		ContentName _namespace = null;
 		
 		CCNxMallInterestHandler _contentInterestResponder = null;
 		
 		try {
-			_incomingHandle = CCNHandle.open();
-			_outgoingHandle = CCNHandle.open();
+			_serverHandle = CCNHandle.open();
 		} catch (ConfigurationException e2) {
 			Assert.fail();
 			e2.printStackTrace();
@@ -45,9 +43,9 @@ public class CCNxMallInterestHandlerTest {
 		}
 		
 		//Register Content Response Handler
-		_contentInterestResponder = new CCNxMallInterestHandler(_incomingHandle, _outgoingHandle, _namespace, "../../../../mall_messages/");
+		_contentInterestResponder = new CCNxMallInterestHandler(_serverHandle, _namespace, "../../../../mall_messages/");
 		try {
-			_incomingHandle.registerFilter(_namespace, _contentInterestResponder);
+			_serverHandle.registerFilter(_namespace, _contentInterestResponder);
 		} catch (IOException e1) {
 			Log.severe("Could not register the _contentInterestResponder to the network");
 			e1.printStackTrace();
@@ -55,6 +53,8 @@ public class CCNxMallInterestHandlerTest {
 		}
 				
 		while(true){
+			
+		}
 			//Here we assume ~/mall_messages/
 			//                     ./1.txt
 			//                     ./2.txt
@@ -67,9 +67,13 @@ public class CCNxMallInterestHandlerTest {
 			//	~/ccngetfile ccnx:/testmall/1.txt ./deletethis
 			// you will get the content of ./1.txt to ./deletethis file
 			//
-		}
+		
 		//TODO Occurs java.io.IOException: Put(s) with no matching interests - size is 2
 		// should look in to it.
+		
+		
+		//_serverHandle.close();
+		
 	}
 
 }

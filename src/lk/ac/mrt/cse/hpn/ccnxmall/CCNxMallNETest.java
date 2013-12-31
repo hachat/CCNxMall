@@ -67,7 +67,8 @@ public class CCNxMallNETest {
 	else{
 		Assert.fail();
 	}
-		assertTrue(_networkHandler.shutdownNetwork());
+			incomingHandle.close();
+			outgoingHandle.close();
 	}
 
 }

@@ -17,7 +17,7 @@ import org.ccnx.ccn.protocol.Interest;
 public class CCNxMallInterestHandler implements CCNInterestHandler{
 
 	
-	static int BUF_SIZE = 4096;
+	protected static int BUF_SIZE = 4096;
 	
 	protected ContentName _prefix;
 	
@@ -26,21 +26,14 @@ public class CCNxMallInterestHandler implements CCNInterestHandler{
 	/**
 	 * Incoming content request handler.
 	 */
-	protected CCNHandle _putHandle;
+	protected CCNHandle _serviceHandle;
 	
-	/**
-	 * Outgoing enumerator response handler.
-	 */
-	protected CCNHandle _getHandle;
-	
-	CCNxMallInterestHandler(CCNHandle _incomingHandle,
-			CCNHandle _outgoingHandle,
+	CCNxMallInterestHandler(CCNHandle _networkServiceHandle,
 			ContentName _domainPrefix,
 			String _contentFolder) {
-		
+
 		_prefix = _domainPrefix;
-		_putHandle = _outgoingHandle;
-		_getHandle = _incomingHandle;
+		_serviceHandle = _networkServiceHandle;
 		_rootDirectory = _contentFolder;
 		
 	}
@@ -83,13 +76,14 @@ public class CCNxMallInterestHandler implements CCNInterestHandler{
 		
 		// Set the version of the CCN content to be the last modification time of the file.
 		CCNTime modificationTime = new CCNTime(fileToWrite.lastModified());
+		@SuppressWarnings("deprecation")
 		ContentName versionedName = 
 			VersioningProfile.addVersion(new ContentName(_prefix, 
 						outstandingInterest.name().postfix(_prefix).components()), modificationTime);
 
 		// CCNFileOutputStream will use the version on a name you hand it (or if the name
 		// is unversioned, it will version it).
-		CCNFileOutputStream ccnout = new CCNFileOutputStream(versionedName, _putHandle);
+		CCNFileOutputStream ccnout = new CCNFileOutputStream(versionedName, _serviceHandle);
 		
 		// We have an interest already, register it so we can write immediately.
 		ccnout.addOutstandingInterest(outstandingInterest);

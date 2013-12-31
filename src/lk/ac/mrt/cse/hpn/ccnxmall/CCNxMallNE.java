@@ -67,22 +67,7 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 		Log.info("Completed setupNetwork");
 		return true;
 	}
-	
-	public boolean shutdownNetwork(){
-		Log.info("Starting shutdownNetwork");
-		
-		if (null != _putHandle)
-			_putHandle.close();
-		if (null != _getHandle)
-			_getHandle.close();
-		
-		//TODO: Never Used a key.!
-		//KeyManager.closeDefaultKeyManager();
-		
-		Log.info("Completed shutdownNetwork");
-		return true;
-	}
-	
+
 	
 	/**
 	 * Wrapper for getting list of available content from the network

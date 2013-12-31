@@ -3,12 +3,9 @@ package lk.ac.mrt.cse.hpn.ccnxmall;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import junit.framework.Assert;
-
 import org.ccnx.ccn.CCNHandle;
 import org.ccnx.ccn.config.ConfigurationException;
 import org.ccnx.ccn.impl.support.Log;
-import org.ccnx.ccn.profiles.nameenum.CCNNameEnumerator;
 import org.ccnx.ccn.protocol.ContentName;
 import org.ccnx.ccn.protocol.MalformedContentNameStringException;
 
@@ -26,11 +23,22 @@ public class CCNxMall {
 	protected CCNHandle _outgoingHandle;
 	
 	/**
-	 * Ones the other part knows that we have a particular file,
+	 * Ones the other party knows that we have a particular file,
 	 * it will request that file by name. this is the place where we 
 	 * reply with the actual content for such requests
 	 */
 	protected CCNxMallInterestHandler _contentInterestResponder;
+	
+	
+	/**
+	 * Once we know that we don't have a particular file
+	 * which is interesting, and it is available in the network,
+	 * we request it an put it in our content store.
+	 * _contentCollector is responsible for that.
+	 */
+	protected CCNxMallContentHandler _contentCollector;
+	
+	
 	
 	/**
 	 * Content store keeps all messages available in this Node.
@@ -88,7 +96,7 @@ public class CCNxMall {
 		}
 		
 		//Register Content Response Handler
-		_contentInterestResponder = new CCNxMallInterestHandler(_incomingHandle, _outgoingHandle, _namespace, _rootFolder);
+		_contentInterestResponder = new CCNxMallInterestHandler(_incomingHandle,_namespace, _rootFolder);
 		try {
 			_incomingHandle.registerFilter(_namespace, _contentInterestResponder);
 		} catch (IOException e1) {
@@ -112,14 +120,31 @@ public class CCNxMall {
 			e.printStackTrace();
 			return false;
 		}
+		
+		//Initialize _contentCollector
+		_contentCollector = new CCNxMallContentHandler(_outgoingHandle,_rootFolder);
+
 		Log.info("Registered Namespace {0} successfully",domain);
 		return true;
 	}
 	
-	public void finalize(){
-		
-		_networkHandler.shutdownNetwork();
 	
+	public boolean shutdownNetwork(){
+		Log.info("Starting shutdownNetwork");
+		
+		
+		//Careful on _contentInterestResponder this should available for some time as a service
+		
+		if (null != _incomingHandle)
+			_incomingHandle.close();
+		if (null != _outgoingHandle)
+			_outgoingHandle.close();
+		
+		//TODO: Never Used a key.!
+		//KeyManager.closeDefaultKeyManager();
+		
+		Log.info("Completed shutdownNetwork");
+		return true;
 	}
 	
 	public void syncContentStore(String prefix){
@@ -127,9 +152,12 @@ public class CCNxMall {
 		names = _networkHandler.getContentListFromNetwork(prefix);
 		if(names != null){
 			for(ContentName name: names){
-				System.out.println("Received: " + name);
+				System.out.println("Need to get: " + prefix + name);
+				_contentCollector.getContentAndStore(prefix + name);
 			}
 		}
+		
+		
 	}
 	
 	/**
@@ -151,7 +179,13 @@ public class CCNxMall {
 		}
 		mall.syncContentStore("ccnx:/mall");
 
-		mall.finalize();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		mall.shutdownNetwork();
 	}
 
 }
