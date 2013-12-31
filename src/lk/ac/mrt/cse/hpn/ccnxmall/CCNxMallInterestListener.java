@@ -27,7 +27,7 @@ import org.ccnx.ccn.protocol.Interest;
 import org.ccnx.ccn.protocol.MalformedContentNameStringException;
 
 @SuppressWarnings("deprecation")
-public class CCNxMallInterestListener implements CCNFilterListener {
+public class CCNxMallInterestListener implements CCNFilterListener,Runnable {
 
 	static int BUF_SIZE = 4096;
 	static String DEFAULT_URI = "ccnx:/mall";
@@ -225,6 +225,7 @@ public class CCNxMallInterestListener implements CCNFilterListener {
 	    potentialCollectionName = SegmentationProfile.segmentName(potentialCollectionName, SegmentationProfile.baseSegment());
 		
 	    //check if we should respond...
+	    System.out.println("INT: " + interest + " COLNAME: " + potentialCollectionName );
 		if (interest.matches(potentialCollectionName, null)) {
 		
 			// We want to set the version of the NE response to the time of the 
@@ -281,6 +282,26 @@ public class CCNxMallInterestListener implements CCNFilterListener {
 			Log.warningStackTrace(e);
 			System.err.println("Exception in MallInterestListener: type: " + e.getClass().getName() + ", message:  "+ e.getMessage());
 			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void run() {
+		
+		try {
+			start();
+		
+			while (!finished()) {
+				// we really want to wait until someone ^C's us.
+				try {
+					Thread.sleep(100000);
+				} catch (InterruptedException e) {
+					// do nothing
+				}
+			}
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 }
