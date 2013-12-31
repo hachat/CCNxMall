@@ -2,9 +2,6 @@ package lk.ac.mrt.cse.hpn.ccnxmall;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
-
-
 
 import org.ccnx.ccn.CCNHandle;
 import org.ccnx.ccn.config.ConfigurationException;
@@ -13,22 +10,21 @@ import org.ccnx.ccn.profiles.nameenum.BasicNameEnumeratorListener;
 import org.ccnx.ccn.profiles.nameenum.CCNNameEnumerator;
 import org.ccnx.ccn.protocol.ContentName;
 import org.ccnx.ccn.protocol.MalformedContentNameStringException;
-import org.ccnx.ccn.protocol.Signature;
 
 public class CCNxMallNE implements BasicNameEnumeratorListener{
 
 	/**
 	 * Incoming enumerator request handler.
 	 */
-	protected CCNNameEnumerator putne;
-	protected CCNHandle putHandle;
+	protected CCNNameEnumerator _putne;
+	protected CCNHandle _putHandle;
 	
 	
 	/**
 	 * Outgoing enumerator response handler.
 	 */
-	protected CCNNameEnumerator getne;
-	protected CCNHandle getHandle;
+	protected CCNNameEnumerator _getne;
+	protected CCNHandle _getHandle;
 
 	/**
 	 * Place to keep list of available names through the network.
@@ -49,12 +45,15 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 
 	}
 	
-	public boolean setupNetwork(){
+	public boolean setupNetwork(CCNHandle _incomingHandle,CCNHandle _outgoingHandle){
 		Log.info("Starting setupNetwork");
 				
+		
+		_putHandle = _outgoingHandle;
+		_getHandle = _incomingHandle;
 		try {
-			putHandle = CCNHandle.open();
-			getHandle = CCNHandle.open();
+			_putHandle = CCNHandle.open();
+			_getHandle = CCNHandle.open();
 		} catch (ConfigurationException | IOException e) {
 			Log.severe("Could not open CCNx network handles");
 			e.printStackTrace();
@@ -62,8 +61,8 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 		}
 		
 		
-		putne = new CCNNameEnumerator(putHandle, this);
-		getne = new CCNNameEnumerator(getHandle, this);
+		_putne = new CCNNameEnumerator(_putHandle, this);
+		_getne = new CCNNameEnumerator(_getHandle, this);
 		
 		Log.info("Completed setupNetwork");
 		return true;
@@ -72,10 +71,10 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 	public boolean shutdownNetwork(){
 		Log.info("Starting shutdownNetwork");
 		
-		if (null != putHandle)
-			putHandle.close();
-		if (null != getHandle)
-			getHandle.close();
+		if (null != _putHandle)
+			_putHandle.close();
+		if (null != _getHandle)
+			_getHandle.close();
 		
 		//TODO: Never Used a key.!
 		//KeyManager.closeDefaultKeyManager();
@@ -123,7 +122,7 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 		}
 		
 		try {
-			getne.cancelPrefix(ContentName.fromNative(nativePrefix));
+			_getne.cancelPrefix(ContentName.fromNative(nativePrefix));
 		} catch (MalformedContentNameStringException e) {
 			Log.severe("Couldn't convert prefix properly");
 			e.printStackTrace();
@@ -140,14 +139,14 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 	public void registerNames(ContentName namespace,ArrayList<ContentName> names) throws IOException{
 		Log.info("Starting registerNames");
 		
-		putne.registerNameSpace(namespace);
+		_putne.registerNameSpace(namespace);
 		
 		for(ContentName name: names ){
-			putne.registerNameForResponses(name);				
+			_putne.registerNameForResponses(name);				
 		}
 		try{
 			//Wait till even the last name is registered
-			while(!putne.containsRegisteredName(names.get(names.size()-1))){
+			while(!_putne.containsRegisteredName(names.get(names.size()-1))){
 				Thread.sleep(10);
 			}
 			
@@ -178,7 +177,7 @@ public class CCNxMallNE implements BasicNameEnumeratorListener{
 	    ContentName prefix = null;
 		try{
 			prefix = ContentName.fromNative(interestedPrefix);
-			getne.registerPrefix(prefix);
+			_getne.registerPrefix(prefix);
 		}
 		catch(Exception e){
 			Log.warning("Could not create ContentName from {0}",interestedPrefix);

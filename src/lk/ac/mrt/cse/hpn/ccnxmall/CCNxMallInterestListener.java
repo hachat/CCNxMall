@@ -78,6 +78,7 @@ public class CCNxMallInterestListener implements CCNFilterListener,Runnable {
 
 	@Override
 	public boolean handleInterest(Interest interest) {
+		Log.info("Starting handleInterest");
 		
 		// Alright, we've gotten an interest. Either it's an interest for a stream we're
 		// already reading, or it's a request for a new stream.
@@ -121,6 +122,7 @@ public class CCNxMallInterestListener implements CCNFilterListener,Runnable {
 	}
 
 	protected File ccnNameToFilePath(ContentName name) {
+		Log.info("Starting ccnNameToFilePath");
 		
 		ContentName fileNamePostfix = name.postfix(_prefix);
 		if (null == fileNamePostfix) {
@@ -131,6 +133,8 @@ public class CCNxMallInterestListener implements CCNFilterListener,Runnable {
 
 		File fileToWrite = new File(_rootDirectory, fileNamePostfix.toString());
 		Log.info("file postfix {0}, resulting path name {1}", fileNamePostfix, fileToWrite.getAbsolutePath());
+		
+		Log.info("Completed ccnNameToFilePath");
 		return fileToWrite;
 	}
 	
