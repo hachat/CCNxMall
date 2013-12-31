@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 
-import junit.framework.Assert;
 
 import lk.ac.mrt.cse.hpn.ccnxmall.CCNxMallContentStore;
 

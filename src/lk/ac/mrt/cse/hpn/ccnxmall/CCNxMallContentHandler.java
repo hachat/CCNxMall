@@ -37,7 +37,7 @@ public class CCNxMallContentHandler implements CCNContentHandler{
 		Log.info("Got data response: " + interest + " data: " + data);
 
 		filename = interest.getContentName().toURIString();
-		filename = _rootDirectory +"recv" +filename.substring(filename.lastIndexOf("/")+1);
+		filename = _rootDirectory + filename.substring(filename.lastIndexOf("/")+1);
 		Log.info("File Name: " + filename);
 		FileOutputStream fos = null;
 			try {

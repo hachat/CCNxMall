@@ -51,11 +51,11 @@ public class CCNxMallContentStore {
 		
 		for(String file: listOfFiles){
 			if(file.equals(filename)){
-				Log.info("Complete checkAvailability");
+				Log.info("Complete checkAvailability {0}",true);
 				return true;
 			}
 		}
-		Log.info("Complete checkAvailability");
+		Log.info("Complete checkAvailability {0}",false);
 		return false;
 	}
 }

@@ -168,7 +168,7 @@ public class CCNxMall {
 		if(names != null){
 			for(ContentName name: names){
 				System.out.println("Need to get: " + prefix + name);
-				if(_contentStore.checkAvailability(name.toURIString())){
+				if(!_contentStore.checkAvailability(name.toString().substring(1))){
 				//Grab each content and save it
 				_contentCollector.getContentAndStore(prefix + name);
 				}
@@ -223,6 +223,10 @@ public class CCNxMall {
 			return;
 		}
 		
+		String directory = args[1];
+		if(!directory.endsWith("/")){
+			directory = directory.concat("/");
+		}		
 		System.out.println("Namespace:" + args[0]);
 		System.out.println("Message Store:" + args[1]);
 		
